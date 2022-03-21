@@ -91,6 +91,17 @@ class App extends Component<Props, Cells> {
     this.setState({ cells: newCells, instruction: instruction });
   }
 
+  async undo() {
+    const response = await fetch("undo");
+    const json = await response.json();
+
+    const newCells: Array<Cell> = this.convertToCell(json);
+    const turn = this.getTurn(json);
+    const winner = this.getWinner(json);
+    const instruction = this.getInstruction(turn, winner);
+    this.setState({ cells: newCells, instruction: instruction });
+  }
+
   async switch() {
     if (
       window.location.href === "http://localhost:3000/newgame" &&
@@ -103,6 +114,12 @@ class App extends Component<Props, Cells> {
       oldHref !== window.location.href
     ) {
       this.play(window.location.href);
+      oldHref = window.location.href;
+    } else if (
+        window.location.href === "http://localhost:3000/undo" &&
+        oldHref !== window.location.href
+    ) {
+      this.undo();
       oldHref = window.location.href;
     }
   };

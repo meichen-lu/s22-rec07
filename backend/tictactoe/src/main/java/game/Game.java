@@ -50,6 +50,14 @@ public class Game {
         return new Game(this.board.updateCell(x, y, this.player), nextPlayer, newHistory);
     }
 
+    public Game undo() {
+        int s = this.history.size();
+        if (s == 0) return this;
+        Game oldGame = this.history.get(s-1);
+        this.history.remove(s-1);
+        return new Game(oldGame.board, oldGame.player, oldGame.history);
+    }
+
     public Player getWinner() {
         for (int row = 0; row < 3; row++)
             if (board.getCell(row, 0) != null && board.getCell(row, 0) == board.getCell(row, 1)
