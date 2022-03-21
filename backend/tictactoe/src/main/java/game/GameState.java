@@ -5,24 +5,39 @@ import java.util.Arrays;
 public class GameState {
 
     private final Cell[] cells;
+    private final Player winner;
+    private final int turn;
 
-    private GameState(Cell[] cells) {
+    private GameState(Cell[] cells, Player winner, int turn) {
         this.cells = cells;
+        this.winner = winner;
+        this.turn = turn;
+    }
+
+    private static Player getWinner(Game game) {
+        return game.getWinner();
+    }
+
+    private static int getTurn(Game game) {
+        return game.getPlayer().value;
     }
 
     public static GameState forGame(Game game) {
         Cell[] cells = getCells(game);
-        return new GameState(cells);
-    }
-
-
-    public Cell[] getCells() {
-        return this.cells;
+        Player winner = getWinner(game);
+        int turn = getTurn(game);
+        return new GameState(cells, winner, turn);
     }
 
     @Override
     public String toString() {
-        return "{ \"cells\": " + Arrays.toString(this.cells) + "}";
+        if (this.winner == null) {
+            return "{ \"cells\": " + Arrays.toString(this.cells) + "," +
+                    "\"turn\": " + String.valueOf(this.turn) + "}";
+        }
+        return "{ \"cells\": " + Arrays.toString(this.cells) + "," +
+                "\"turn\": " + String.valueOf(this.turn) + "," +
+                "\"winner\": " + String.valueOf(this.winner.value) + "}";
     }
 
     private static Cell[] getCells(Game game) {

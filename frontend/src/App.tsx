@@ -12,7 +12,8 @@ interface Cell {
 
 interface Cells {
   cells: Array<Cell>,
-  template: HandlebarsTemplateDelegate<any>
+  template: HandlebarsTemplateDelegate<any>,
+  instruction: String,
 }
 
 interface Props {
@@ -33,7 +34,8 @@ class App extends Component<Props, Cells> {
         { text: "", clazz: "playable", link: "/play?x=1&y=2" },
         { text: "", clazz: "playable", link: "/play?x=2&y=2" },
       ],
-      template: this.loadTemplate()
+      template: this.loadTemplate(),
+      instruction: "It is Player 0's turn.",
     };
   }
 
@@ -56,12 +58,25 @@ class App extends Component<Props, Cells> {
     return newCells;
   }
 
+  getTurn(p: any): String {
+    return p["turn"];
+  }
+
+  getWinner(p: any): String | undefined {
+    return p["winner"];
+  }
+
+  getInstruction(turn: String, winner: String | undefined) {
+    if (winner === undefined) return "It is Player " + turn + "'s turn.";
+    else return "Player " + winner + " wins!";
+  }
+
   async newGame() {
     const response = await fetch("newgame");
     const json = await response.json();
 
     const newCells: Array<Cell> = this.convertToCell(json);
-    this.setState({ cells: newCells });
+    this.setState({ cells: newCells, instruction: "It is Player 0's turn." });
   }
 
   async play(url: String) {
@@ -70,7 +85,10 @@ class App extends Component<Props, Cells> {
     const json = await response.json();
 
     const newCells: Array<Cell> = this.convertToCell(json);
-    this.setState({ cells: newCells });
+    const turn = this.getTurn(json);
+    const winner = this.getWinner(json);
+    const instruction = this.getInstruction(turn, winner);
+    this.setState({ cells: newCells, instruction: instruction });
   }
 
   async switch() {
@@ -95,7 +113,7 @@ class App extends Component<Props, Cells> {
       <div className="App">
         <div
           dangerouslySetInnerHTML={{
-            __html: this.state.template({ cells: this.state.cells }),
+            __html: this.state.template({ cells: this.state.cells, instruction: this.state.instruction }),
           }}
         />
       </div>
